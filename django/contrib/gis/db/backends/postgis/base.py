@@ -25,10 +25,11 @@ class DatabaseWrapper(Psycopg2DatabaseWrapper):
     @cached_property
     def template_postgis(self):
         template_postgis = getattr(settings, 'POSTGIS_TEMPLATE', 'template_postgis')
-        with self._nodb_connection.cursor() as cursor:
-            cursor.execute('SELECT 1 FROM pg_database WHERE datname = %s LIMIT 1;', (template_postgis,))
-            if cursor.fetchone():
-                return template_postgis
+        if template_postgis is not None:
+            with self._nodb_connection.cursor() as cursor:
+                cursor.execute('SELECT 1 FROM pg_database WHERE datname = %s LIMIT 1;', (template_postgis,))
+                if cursor.fetchone():
+                    return template_postgis
         return None
 
     def prepare_database(self):
